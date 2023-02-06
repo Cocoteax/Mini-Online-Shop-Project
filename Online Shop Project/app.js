@@ -12,7 +12,6 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const errorController = require("./controllers/error");
 
-
 // Registers an app-level middleware that parses incoming request data
 // Note that this middleware will automatically call next() behind the scenes to go to subsequent middleware below
 // Hence, we put it at the very top because we want to be able to parse all incoming request data from the below middleware
@@ -24,7 +23,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Whenever express tries to access a static file, it will execute this middleware and access the corresponding static file
 // See views and note how we can link the css file to them because of this middleware
 app.use(express.static(path.join(__dirname, "public")));
-
 
 // ========== Setting up app-level middlewares which execute the route-level middlewares based on the route specified ==========
 // The general execution pattern is:    App-level middleware > router-level middleware > controller code (Which executes model code and sends data to views)

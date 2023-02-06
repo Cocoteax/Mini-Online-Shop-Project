@@ -7,28 +7,47 @@ const Product = require("../models/product");
 const Cart = require("../models/cart");
 
 // / => GET
-const getIndex = (req, res, next) => {
-  Product.fetchAll((products) => {
+const getIndex = async (req, res, next) => {
+  // ========== Using async/await ==========
+  try {
+    const products = await Product.fetchAll(); // fetchAll() returns a promise (See product.js Model)
     res.render("shop/index", {
-      prods: products,
+      prods: products[0],
       pageTitle: "Shop",
       path: "/",
     });
-  });
+    console.log(products[0]);
+  } catch (e) {
+    console.log(e);
+  }
+
+  // ========== Using then/catch ==========
+  // Product.fetchAll()
+  //   .then((result) => {
+  //     res.render("shop/index", {
+  //       prods: result[0],
+  //       pageTitle: "Shop",
+  //       path: "/",
+  //     });
+  //     console.log(result[0]);
+  //   })
+  //   .catch((e) => {
+  //     console.log(e);
+  //   });
 };
 
 // /products => GET
-const getProducts = (req, res, next) => {
-  // Call fetchAll() static method without instantiating a Product object
-  // Note how a callback function is passed to fetchAll(), but is not executed straight away. It will only be executed if it is called within fetchAll()
-  // Hence, the products argument will be determined when this callback function is executed within fetchAll() (See products.js model)
-  Product.fetchAll((products) => {
+const getProducts = async (req, res, next) => {
+  try {
+    const products = await Product.fetchAll();
     res.render("shop/product-list", {
-      prods: products,
+      prods: products[0],
       pageTitle: "All Products",
       path: "/products",
     });
-  });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 // /products/:productID => GET
