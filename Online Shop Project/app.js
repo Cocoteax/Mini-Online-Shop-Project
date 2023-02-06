@@ -23,6 +23,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Whenever express tries to access a static file, it will execute this middleware and access the corresponding static file
 // See views and note how we can link the css file to them because of this middleware
 app.use(express.static(path.join(__dirname, "public")));
+console.log("test branch")
 
 // ========== Setting up app-level middlewares which execute the route-level middlewares based on the route specified ==========
 // The general execution pattern is:    App-level middleware > router-level middleware > controller code (Which executes model code and sends data to views)
