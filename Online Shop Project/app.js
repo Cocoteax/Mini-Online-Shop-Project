@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // See views and note how we can link the css file to them because of this middleware
 app.use(express.static(path.join(__dirname, "public")));
 console.log("test branch")
-
+console.log("main branch");
 // ========== Setting up app-level middlewares which execute the route-level middlewares based on the route specified ==========
 // The general execution pattern is:    App-level middleware > router-level middleware > controller code (Which executes model code and sends data to views)
 // Start by defining models > define app-level middleware and router-level middleware for the routing > define controllers for logic
