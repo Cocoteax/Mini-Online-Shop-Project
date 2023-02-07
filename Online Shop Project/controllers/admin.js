@@ -15,7 +15,7 @@ const getAddProductPage = (req, res, next) => {
 };
 
 // /admin/add-product => POST
-const postAddProduct = (req, res, next) => {
+const postAddProduct = async (req, res, next) => {
   // req.body gives us access to the POST request data (See bodyParser in app.js)
   const title = req.body.title;
   const imageURL = req.body.imageURL;
@@ -23,8 +23,12 @@ const postAddProduct = (req, res, next) => {
   const description = req.body.description;
   // Create new product object from the Product model and call .save() to store the entered product into products ar
   const product = new Product(null, title, imageURL, price, description);
-  product.save();
-  res.redirect("/");
+  try {
+    await product.save();
+    res.redirect("/");
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 // /admin/products => GET
@@ -84,7 +88,7 @@ const postEditProduct = (req, res, next) => {
 const postDeleteProduct = (req, res, next) => {
   const productID = req.body.productID;
   Product.deleteById(productID);
-  res.redirect("/admin/products")
+  res.redirect("/admin/products");
 };
 
 module.exports = {

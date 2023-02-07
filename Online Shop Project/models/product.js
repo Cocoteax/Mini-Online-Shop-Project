@@ -12,7 +12,15 @@ class Product {
   }
 
   // Store the user inserted OR updated products into products.json
-  save() {}
+  save() {
+    // Insert data into mysql db by using INSERT INTO sql statement
+    // The ? symbol is the placeholder values, which will be replaced by the second array argument passed into .execute() (Order of ar matters)
+    return db.execute(
+      // "INSERT INTO products (title, price, imageURL, description) VALUES (?,?,?,?)",
+      // [this.title, this.price, this.imageURL, this.description]
+      `INSERT INTO products (title, price, imageURL, description) VALUES ("${this.title}","${this.price}","${this.imageURL}","${this.description}")`
+    );
+  }
 
   // static keyword allows us to call fetchAll() without instantiating a Product object by using className.fetchAll()
   static fetchAll() {
@@ -20,7 +28,9 @@ class Product {
   }
 
   // return a product based on productID
-  static findById(id) {}
+  static findById(id) {
+    return db.execute(`SELECT * FROM products WHERE products.id = ${id}`)
+  }
 
   // delete a product based on productID
   static deleteById(id) {}

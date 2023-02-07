@@ -51,19 +51,20 @@ const getProducts = async (req, res, next) => {
 };
 
 // /products/:productID => GET
-const getProductDetail = (req, res, next) => {
+const getProductDetail = async (req, res, next) => {
   // use req.params.{dynamicVariable} to access the dynamic variable that we inserted into the URL
   // Note that the name of the dynamicVariable is the name we use to define the dynamic variable when we create the route (See shop.js routes)
   const productID = req.params.productID;
-  // Note how a callback function is passed to findById() as the second argument, but is not executed straight away. It will only be executed if it is called within findById()
-  // Hence, the product argument will be determined when this callback function is executed within findById() (See products.js model)
-  Product.findById(productID, (product) => {
+  try {
+    const product = await Product.findById(productID);
     res.render("shop/product-detail", {
-      product: product,
+      product: product[0][0],
       pageTitle: product.title,
       path: "/products",
     });
-  });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 // /cart => GET
