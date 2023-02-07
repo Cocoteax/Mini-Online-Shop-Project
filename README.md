@@ -9,14 +9,12 @@ Back-end developed using ExpressJS and mongoDB <br/>
 
 ## Installation and Setup Instructions
 **Step 1:** Clone this repository <br/>
-**Step 2:** Create a config.json file in the root folder and include the following content:
+**Step 2:** Navigate to util/database.js and update the following line of code with the relevant parameters:
 ```
-{
-  "host": HOST_NAME,
-  "user": USER_NAME,
-  "database": DATABASE_NAME,
-  "password": PASSWORD
-}
+const sequelize = new Sequelize("DB_NAME", "USER_NAME", "PASSWORD", {
+  dialect: "DB",
+  host: "HOST_NAME",
+});
 ```
 **Step 3:** Open 1 terminal and navigate to this repository <br/>
 **Step 4:** Insert following commands:
