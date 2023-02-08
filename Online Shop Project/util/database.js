@@ -1,12 +1,17 @@
 // Sequelize is a library that performs object relational mapping (ORM)
 // This allows us to work with JS objects instead of writing SQL queries
-const Sequelize = require("sequelize");
+const { Sequelize } = require("sequelize");
 
 // Set up a connection with mysql db
-const sequelize = new Sequelize("Mini-Online-Shop-Project", "root", "Zealpeac3", {
-  dialect: "mysql",
-  host: "localhost",
-});
+const sequelize = new Sequelize(
+  "Mini-Online-Shop-Project",
+  "root",
+  "Zealpeac3",
+  {
+    dialect: "mysql",
+    host: "localhost",
+  }
+);
 
 module.exports = sequelize;
 

@@ -8,18 +8,32 @@ const Cart = require("../models/cart");
 
 // / => GET
 const getIndex = async (req, res, next) => {
-  // ========== Using async/await ==========
+  // .findAll() allows us to retrieve all records from the model => We can pass a config object to change how we select the object such as including where statements, etc (Refer to docs)
+  // Note that .findAll() returns a promise
   try {
-    const products = await Product.fetchAll(); // fetchAll() returns a promise (See product.js Model)
+    const products = await Product.findAll(); // Note that .findAll() returns an array of data
     res.render("shop/index", {
-      prods: products[0],
+      prods: products,
       pageTitle: "Shop",
       path: "/",
     });
-    console.log(products[0]);
   } catch (e) {
     console.log(e);
   }
+
+  // // ========== USING MYSQL2 ==========
+  // // ========== Using async/await ==========
+  // try {
+  //   const products = await Product.fetchAll(); // fetchAll() returns a promise (See product.js Model)
+  //   res.render("shop/index", {
+  //     prods: products[0],
+  //     pageTitle: "Shop",
+  //     path: "/",
+  //   });
+  //   console.log(products[0]);
+  // } catch (e) {
+  //   console.log(e);
+  // }
 
   // ========== Using then/catch ==========
   // Product.fetchAll()
@@ -39,9 +53,9 @@ const getIndex = async (req, res, next) => {
 // /products => GET
 const getProducts = async (req, res, next) => {
   try {
-    const products = await Product.fetchAll();
+    const products = await Product.findAll();
     res.render("shop/product-list", {
-      prods: products[0],
+      prods: products,
       pageTitle: "All Products",
       path: "/products",
     });
@@ -56,9 +70,12 @@ const getProductDetail = async (req, res, next) => {
   // Note that the name of the dynamicVariable is the name we use to define the dynamic variable when we create the route (See shop.js routes)
   const productID = req.params.productID;
   try {
-    const product = await Product.findById(productID);
+    // Note how we can also use .findAll() to retreive a specific data from the model
+    // const product = await Product.findAll({where: {id: productID}})
+    // .findByPk(id) allows us to retrieve data from the model using the PK
+    const product = await Product.findByPk(productID); // Note that .findByPk() returns a single object and not an array
     res.render("shop/product-detail", {
-      product: product[0][0],
+      product: product,
       pageTitle: product.title,
       path: "/products",
     });
