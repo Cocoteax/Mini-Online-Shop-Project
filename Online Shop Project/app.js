@@ -2,7 +2,6 @@ const path = require("path");
 
 const express = require("express");
 const bodyParser = require("body-parser");
-const seqeulize = require("./util/database");
 
 const app = express();
 
@@ -13,6 +12,10 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const errorController = require("./controllers/error");
 const sequelize = require("./util/database");
+
+const Product = require("./models/product");
+const Cart = require("./models/cart");
+const User = require("./models/user");
 
 // Registers an app-level middleware that parses incoming request data
 // Note that this middleware will automatically call next() behind the scenes to go to subsequent middleware below
@@ -33,9 +36,16 @@ app.use("/admin", adminRoutes.router);
 app.use("/", shopRoutes.router); // If the router.get("/") has no exact match, then it will execute the below 404 middleware
 app.use("/", errorController.get404);
 
+// ========== Define relationship between models ========== (REFER TO DOCS FOR DIFFERENT TYPES OF ASSOCIATION AND HOW TO DEFINE RELATIONSHIPS)
+
+// Products have one-to-many r/s with Users => Products have one User, but User can have multiple Product
+// This creates a foreign key userId in Product model
+Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" }); // Second argument is a config object
+User.hasMany(Product);
+
 // Creates all models defined using sequelize.define() as a table in the database
 // .sync() returns a promise, so we can use then/catch or async/await
-sequelize.sync();
+sequelize.sync({ force: true });
 //   .then((result) => {
 //     // console.log(result);
 //     app.listen(3000);
