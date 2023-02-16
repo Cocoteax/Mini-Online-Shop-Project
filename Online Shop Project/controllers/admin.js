@@ -22,17 +22,28 @@ const postAddProduct = async (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
 
-  // .create() allows us to create a model record and save it directly to the database table => Note that it returns a promise
-  // .build() allows us to create a model record instance, which we then have to manually save it into the database table by using .save()
-  // Note that these methods are from the sequelize object since we used sequelize.define() to create the Product model
   try {
-    const product = await Product.create({
+    // Since we created a belongsTo and hasMany association between user and product, sequelize provides us a special mixin (function) to create a product associated to the current user
+    // We can directly access the user using req.user and call .createProduct() and pass in the relevant fields
+    // Note that userId is automatically populated since we are accessing the current user and calling .createProduct()
+    req.user.createProduct({
       title: title,
       imageURL: imageURL,
       price: price,
       description: description,
     });
-    res.redirect("/admin/products")
+
+    // // Alternatively, we can manually create the product using .create()
+    // // .create() allows us to create a model record and save it directly to the database table => Note that it returns a promise
+    // // .build() allows us to create a model record instance, which we then have to manually save it into the database table by using .save()
+    // const product = await Product.create({
+    //   title: title,
+    //   imageURL: imageURL,
+    //   price: price,
+    //   description: description,
+    //   userId: req.user.id, // We can access the current user that we stored into req.user through the app-level middleware
+    // });
+    res.redirect("/admin/products");
   } catch (e) {
     console.log(e);
   }
@@ -41,7 +52,8 @@ const postAddProduct = async (req, res, next) => {
 // /admin/products => GET
 const getAdminProducts = async (req, res, next) => {
   try {
-    const products = await Product.findAll();
+    // const products = await Product.findAll();
+    const products = await req.user.getProducts(); // Alternative way to get products associated with current user by using the special mixin
     res.render("admin/products", {
       prods: products,
       pageTitle: "Admin Products",
@@ -63,7 +75,13 @@ const getEditProduct = async (req, res, next) => {
   // use req.params.{dynamicVariable} to access the dynamic variable that we inserted into the URL
   const productID = req.params.productID;
   try {
-    const product = await Product.findByPk(productID);
+    const products = await req.user.getProducts({ where: { id: productID } }); // special mixin to get the product associated to the current user
+    const product = products[0];
+    // // Alternative methods to get product associated to the current suer
+    // const product = await Product.findByPk(productID);
+    // const product = await Product.findOne({
+    //   where: { id: productID, userId: req.user.id },
+    // });
     res.render("admin/edit-product", {
       pageTitle: "Edit Product",
       path: "/admin/edit-product",

@@ -85,45 +85,69 @@ const getProductDetail = async (req, res, next) => {
 };
 
 // /cart => GET
-const getCart = (req, res, next) => {
-  // Get all products in the cart and in the product model
-  Cart.getCart((cart) => {
-    Product.fetchAll((products) => {
-      const cartProducts = [];
-      for (product of products) {
-        // If a product from the Product model exists in the cart, then we add the product and its qty into cartProductData
-        const cartProductData = cart.products.find(
-          (prod) => prod.id === product.id
-        );
-        if (cartProductData) {
-          cartProducts.push({ productData: product, qty: cartProductData.qty }); // Note how qty is taken from the cart
-        }
-      }
-      res.render("shop/cart", {
-        path: "/cart",
-        pageTitle: "Your Cart",
-        products: cartProducts,
-      });
+const getCart = async (req, res, next) => {
+  try {
+    const cart = await req.user.getCart(); // special mixin for one-to-one relationship to get cart associated with current user
+    const cartProducts = await cart.getProducts(); // special mixin for many-to-many relationship to get products associated with cart of current user through the intermediate table
+    res.render("shop/cart", {
+      path: "/cart",
+      pageTitle: "Your Cart",
+      products: cartProducts,
     });
-  });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 // /cart => POST
-const postCart = (req, res, next) => {
-  const productID = req.body.productID;
-  Product.findById(productID, (product) => {
-    Cart.addProduct(productID, product.price);
-  });
-  res.redirect("/cart");
+const postCart = async (req, res, next) => {
+  try {
+    const productID = req.body.productID;
+    const cart = await req.user.getCart();
+    const cartProducts = await cart.getProducts({ where: { id: productID } }); // cartProducts is an array containing the desired product if present
+    // function to update product and quantity within the cart
+    const manageProductAndQty = async () => {
+      // If product already exists inside cart
+      if (cartProducts.length > 0) {
+        const product = cartProducts[0];
+        const oldQty = product.cartItem.quantity; // sequelize allows us to access the actual record from the intermediate model using dot notation
+        const qty = oldQty + 1;
+        return { product, qty };
+      }
+      // Else, if product does not exist inside cart
+      else {
+        const product = await Product.findByPk(productID);
+        const qty = 1;
+        return { product, qty };
+      }
+    };
+
+    // Call function to get updated product and quantity within the cart
+    const { product, qty } = await manageProductAndQty(); // Note the use of object destructuring
+
+    // Save the record into db using special mixin for many-to-many r/s
+    // Note that we pass in the second object to include the extra quantity field that we defined for the intermediate table
+    await cart.addProducts(product, { through: { quantity: qty } });
+    res.redirect("/cart");
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 // /cart-delete-item => POST
-const deleteCartItem = (req, res, next) => {
+const deleteCartItem = async (req, res, next) => {
   const productID = req.body.productID;
-  Product.findById(productID, (product) => {
-    Cart.deleteProduct(productID, product.price);
-    res.redirect("/");
-  });
+  try {
+    const cart = await req.user.getCart();
+    const cartProduct = await cart.getProducts({ where: { id: productID } });
+    const product = cartProduct[0];
+    // Remove the product record ONLY from the cart-item intermediate model and not from the actual products table
+    // .cartItem is a special way of accessing the product record in the intermediate table that sequelize allows us to do
+    await product.cartItem.destroy();
+    res.redirect("/cart");
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 // /orders => GET

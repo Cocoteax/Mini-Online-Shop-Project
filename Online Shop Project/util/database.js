@@ -10,6 +10,7 @@ const sequelize = new Sequelize(
   {
     dialect: "mysql",
     host: "localhost",
+    // logging: false, // Set this if we don't want to log SQL commands onto console
   }
 );
 
