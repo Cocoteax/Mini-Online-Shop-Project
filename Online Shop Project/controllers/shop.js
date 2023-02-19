@@ -5,6 +5,7 @@
 // Get the classes from the model
 const Product = require("../models/product");
 const Cart = require("../models/cart");
+const Order = require("../models/order");
 
 // / => GET
 const getIndex = async (req, res, next) => {
@@ -158,6 +159,30 @@ const getOrders = (req, res, next) => {
   });
 };
 
+// /create-order => POST
+const postOrders = async (req, res, next) => {
+  try {
+    const cart = await req.user.getCart();
+    const cartProducts = await cart.getProducts();
+    // Create an order using the current cartProducts associated to the user
+    const newOrder = await req.user.createOrder();
+
+    // Add the products from the cartProducts array into the intermediate orderItem model
+    // Note how we have to use .map() to iterate through the cartProducts array, add the individual qty attribute into each product, and store them as records in the intermediate orderitem table
+    // This is how we add multiple records at once even if they have different attribute values
+    await newOrder.addProducts(
+      cartProducts.map((product) => {
+        product.orderItem = { quantity: product.cartItem.quantity }; // Access each record in the intermediate table using the table name (orderItem) and assign the relevant qty attribute to the record
+        console.log(product);
+        return product;
+      })
+    );
+    res.redirect("/orders");
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // /checkout => GET
 const getCheckout = (req, res, next) => {
   res.render("shop/checkout", {
@@ -173,6 +198,7 @@ module.exports = {
   getCart,
   getCheckout,
   getOrders,
+  postOrders,
   getProductDetail,
   postCart,
   deleteCartItem,

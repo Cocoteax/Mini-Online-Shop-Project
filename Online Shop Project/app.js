@@ -17,6 +17,8 @@ const Product = require("./models/product");
 const Cart = require("./models/cart");
 const User = require("./models/user");
 const cartItem = require("./models/cart-item");
+const Order = require("./models/order");
+const orderItem = require("./models/order-item");
 
 // Registers an app-level middleware that parses incoming request data
 // Note that this middleware will automatically call next() behind the scenes to go to subsequent middleware below
@@ -61,6 +63,14 @@ Cart.belongsTo(User);
 // In this case, sequelize creates the table defined in the through object => CartItem contains the PK of Cart and Product and represents the many-to-many r/s
 Cart.belongsToMany(Product, { through: cartItem });
 Product.belongsToMany(Cart, { through: cartItem });
+
+// Order has a one-to-many r/s with User => Foreign key userId in Order model
+Order.belongsTo(User);
+User.hasMany(Order);
+
+// Order has a many-to-many r/s with Product
+Order.belongsToMany(Product, { through: orderItem });
+Product.belongsToMany(Order, { through: orderItem });
 
 // .sync() creates all models defined using sequelize.define() as a table in the database
 // .sync() returns a promise, so we can use then/catch or async/await

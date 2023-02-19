@@ -33,6 +33,9 @@ router.post("/cart-delete-item", shopController.deleteCartItem);
 // /orders => GET
 router.get("/orders", shopController.getOrders);
 
+// /create-order => POST
+router.post("/create-order", shopController.postOrders);
+
 // /checkout => GET
 router.get("/checkout", shopController.getCheckout);
 
