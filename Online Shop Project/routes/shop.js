@@ -36,7 +36,7 @@ router.get("/orders", shopController.getOrders);
 // /create-order => POST
 router.post("/create-order", shopController.postOrders);
 
-// /checkout => GET
-router.get("/checkout", shopController.getCheckout);
+// // /checkout => GET
+// router.get("/checkout", shopController.getCheckout);
 
 module.exports = { router };

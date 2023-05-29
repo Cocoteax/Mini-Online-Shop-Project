@@ -152,11 +152,17 @@ const deleteCartItem = async (req, res, next) => {
 };
 
 // /orders => GET
-const getOrders = (req, res, next) => {
-  res.render("shop/orders", {
-    path: "/orders",
-    pageTitle: "Your Orders",
-  });
+const getOrders = async (req, res, next) => {
+  try {
+    const orders = await req.user.getOrders({include: ['products']}); // Get the products from Product model related to the order by passing in include
+    res.render("shop/orders", {
+      path: "/orders",
+      pageTitle: "Your Orders",
+      orders: orders,
+    });
+  } catch (e) {
+    console.log(e);
+  }
 };
 
 // /create-order => POST
@@ -173,30 +179,31 @@ const postOrders = async (req, res, next) => {
     await newOrder.addProducts(
       cartProducts.map((product) => {
         product.orderItem = { quantity: product.cartItem.quantity }; // Access each record in the intermediate table using the table name (orderItem) and assign the relevant qty attribute to the record
-        console.log(product);
         return product;
       })
     );
+
+    // Empty the cart after order has been created
+    await cart.setProducts(null);
     res.redirect("/orders");
   } catch (e) {
     console.log(e);
   }
 };
 
-// /checkout => GET
-const getCheckout = (req, res, next) => {
-  res.render("shop/checkout", {
-    path: "/checkout",
-    pageTitle: "Your Checkout Page",
-  });
-};
+// // /checkout => GET
+// const getCheckout = (req, res, next) => {
+//   res.render("shop/checkout", {
+//     path: "/checkout",
+//     pageTitle: "Your Checkout Page",
+//   });
+// };
 
 // export the controllers
 module.exports = {
   getProducts,
   getIndex,
   getCart,
-  getCheckout,
   getOrders,
   postOrders,
   getProductDetail,
