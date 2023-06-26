@@ -16,27 +16,27 @@ router.get("/", shopController.getIndex);
 // /products => GET
 router.get("/products", shopController.getProducts);
 
-// /products/{productID} => GET (Dynamic routing which accepts the productID dynamically)
-// By using :, express will know that the route should look for a dynamic variable
-// Note that the order matters, so if we have a /products/delete route below this route, then it will never reach /products/delete
-router.get("/products/:productID", shopController.getProductDetail);
+// // /products/{productID} => GET (Dynamic routing which accepts the productID dynamically)
+// // By using :, express will know that the route should look for a dynamic variable
+// // Note that the order matters, so if we have a /products/delete route below this route, then it will never reach /products/delete
+// router.get("/products/:productID", shopController.getProductDetail);
 
-// /cart => GET
-router.get("/cart", shopController.getCart);
+// // /cart => GET
+// router.get("/cart", shopController.getCart);
 
-// /cart => POST
-router.post("/cart", shopController.postCart);
+// // /cart => POST
+// router.post("/cart", shopController.postCart);
 
-// /cart-delete-item => POST
-router.post("/cart-delete-item", shopController.deleteCartItem);
+// // /cart-delete-item => POST
+// router.post("/cart-delete-item", shopController.deleteCartItem);
 
-// /orders => GET
-router.get("/orders", shopController.getOrders);
+// // /orders => GET
+// router.get("/orders", shopController.getOrders);
 
-// /create-order => POST
-router.post("/create-order", shopController.postOrders);
+// // /create-order => POST
+// router.post("/create-order", shopController.postOrders);
 
-// // /checkout => GET
-// router.get("/checkout", shopController.getCheckout);
+// // // /checkout => GET
+// // router.get("/checkout", shopController.getCheckout);
 
 module.exports = { router };

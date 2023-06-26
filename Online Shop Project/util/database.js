@@ -1,28 +1,29 @@
-// Sequelize is a library that performs object relational mapping (ORM)
-// This allows us to work with JS objects instead of writing SQL queries
-const { Sequelize } = require("sequelize");
+const mongodb = require("mongodb");
+const MongoClient = mongodb.MongoClient; // Required to connect to mongodb
 
-// Set up a connection with mysql db
-const sequelize = new Sequelize(
-  "Mini-Online-Shop-Project",
-  "root",
-  "Zealpeac3",
-  {
-    dialect: "mysql",
-    host: "localhost",
-    logging: false, // Set this if we don't want to log SQL commands onto console
+let db; // Create a db variable which will eventually contain the access to a specific db (See mongoConnect() below)
+
+// This method helps app.js to establish a persistant connection to mongoDB
+const mongoConnect = async () => {
+  try {
+    // .connect() gives us connection to mongoDB
+    let client = await MongoClient.connect(
+      "mongodb+srv://admin:admin123@cluster0.dnoygrc.mongodb.net/?retryWrites=true&w=majority"
+    );
+    // .db() gives us access to the database specified in the parameter and stores it into db variable
+    db = client.db("shop");
+    console.log("Connected to MongoDB!");
+  } catch (e) {
+    console.log(e);
   }
-);
+};
 
-module.exports = sequelize;
+// This method returns access to the specified db (Can be used in other modules such as controllers to perform queries)
+const getDb = () => {
+  if (db) {
+    return db;
+  }
+  throw "No database found";
+};
 
-// ========== Using mysql2 ==========
-// const mysql = require("mysql2");
-// const config = require("../config.json");
-
-// // .createPool() creates a pool of connections which allows us to make a connection whenever we need to
-// // It also allows us to run multiple connections concurrently
-// const pool = mysql.createPool(config);
-
-// // export with .promise() to allow connections to work using promises instead of callbacks
-// module.exports = pool.promise();
+module.exports = { mongoConnect, getDb };

@@ -16,16 +16,16 @@ router.get("/add-product", adminController.getAddProductPage);
 // /admin/add-product => POST
 router.post("/add-product", adminController.postAddProduct);
 
-// /admin/products => GET
-router.get("/products", adminController.getAdminProducts);
+// // /admin/products => GET
+// router.get("/products", adminController.getAdminProducts);
 
-// /admin/edit-product/{productID}?edit=value => GET (Using query params and dynamic routing)
-router.get("/edit-product/:productID", adminController.getEditProduct);
+// // /admin/edit-product/{productID}?edit=value => GET (Using query params and dynamic routing)
+// router.get("/edit-product/:productID", adminController.getEditProduct);
 
-// /admin/edit-product => POST
-router.post("/edit-product", adminController.postEditProduct);
+// // /admin/edit-product => POST
+// router.post("/edit-product", adminController.postEditProduct);
 
-// /admin/delete-product => POST
-router.post("/delete-product", adminController.postDeleteProduct);
+// // /admin/delete-product => POST
+// router.post("/delete-product", adminController.postDeleteProduct);
 
 module.exports = { router };
