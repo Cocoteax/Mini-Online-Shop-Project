@@ -36,25 +36,22 @@ const getProducts = async (req, res, next) => {
   }
 };
 
-// // /products/:productID => GET
-// const getProductDetail = async (req, res, next) => {
-//   // use req.params.{dynamicVariable} to access the dynamic variable that we inserted into the URL
-//   // Note that the name of the dynamicVariable is the name we use to define the dynamic variable when we create the route (See shop.js routes)
-//   const productID = req.params.productID;
-//   try {
-//     // Note how we can also use .findAll() to retreive a specific data from the model
-//     // const product = await Product.findAll({where: {id: productID}})
-//     // .findByPk(id) allows us to retrieve data from the model using the PK
-//     const product = await Product.findByPk(productID); // Note that .findByPk() returns a single object and not an array
-//     res.render("shop/product-detail", {
-//       product: product,
-//       pageTitle: product.title,
-//       path: "/products",
-//     });
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
+// /products/:productID => GET
+const getProductDetail = async (req, res, next) => {
+  // use req.params.{dynamicVariable} to access the dynamic variable that we inserted into the URL
+  // Note that the name of the dynamicVariable is the name we use to define the dynamic variable when we create the route (See shop.js routes)
+  const productID = req.params.productID;
+  try {
+    const product = await Product.findById(productID);
+    res.render("shop/product-detail", {
+      product: product,
+      pageTitle: product.title,
+      path: "/products",
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 // // /cart => GET
 // const getCart = async (req, res, next) => {
@@ -172,12 +169,13 @@ const getProducts = async (req, res, next) => {
 
 // export the controllers
 module.exports = {
-  getProducts,
   getIndex,
+  getProducts,
+  getProductDetail,
   // getCart,
   // getOrders,
   // postOrders,
-  // getProductDetail,
+
   // postCart,
   // deleteCartItem,
 };

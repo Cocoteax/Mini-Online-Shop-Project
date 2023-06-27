@@ -16,10 +16,10 @@ router.get("/", shopController.getIndex);
 // /products => GET
 router.get("/products", shopController.getProducts);
 
-// // /products/{productID} => GET (Dynamic routing which accepts the productID dynamically)
-// // By using :, express will know that the route should look for a dynamic variable
-// // Note that the order matters, so if we have a /products/delete route below this route, then it will never reach /products/delete
-// router.get("/products/:productID", shopController.getProductDetail);
+// /products/{productID} => GET (Dynamic routing which accepts the productID dynamically)
+// By using :, express will know that the route should look for a dynamic variable
+// Note that the order matters, so if we have a /products/delete route below this route, then it will never reach /products/delete
+router.get("/products/:productID", shopController.getProductDetail);
 
 // // /cart => GET
 // router.get("/cart", shopController.getCart);
