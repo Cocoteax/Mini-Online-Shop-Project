@@ -3,12 +3,13 @@ const mongodb = require("mongodb");
 
 // Define a Product collection for our database in mongodb
 class Product {
-  constructor(title, price, description, imageURL, id) {
+  constructor(title, price, description, imageURL, id, userId) {
     this.title = title;
     this.price = price;
     this.description = description;
     this.imageURL = imageURL;
-    this._id = new mongodb.ObjectId(id); // Optional attribute, if NULL then mongodb will automatically create it for us
+    this._id = id ? new mongodb.ObjectId(id) : null; // Optional attribute, if NULL then mongodb will automatically create it for us when we insert into mongodb
+    this.userId = userId; // Reference to user collection
   }
 
   // Function to create a Product record
@@ -22,6 +23,7 @@ class Product {
         const result = await db
           .collection("products")
           .updateOne({ _id: this._id }, { $set: this }); // By using this, we are updating all fields of the product
+        console.log(result);
       } else {
         // Else, get access to products collection and insert one new product document
         const result = await db.collection("products").insertOne(this); // .insertOne() accepts a object as a parameter. In this case, "This"
@@ -58,6 +60,19 @@ class Product {
         .find({ _id: new mongodb.ObjectId(productID) }) // Alternatively, use findOne() so we don't need .next()
         .next();
       return product;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  // Function to delete a product based on id
+  static async deleteById(productID) {
+    try {
+      const db = getDb();
+      const result = await db.collection("products").deleteOne({
+        _id: new mongodb.ObjectId(productID),
+      });
+      console.log(result);
     } catch (e) {
       console.log(e);
     }

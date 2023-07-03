@@ -13,6 +13,8 @@ const shopRoutes = require("./routes/shop");
 const errorController = require("./controllers/error");
 const mongoConnect = require("./util/database").mongoConnect;
 
+const User = require("./models/user");
+
 // Registers an app-level middleware that parses incoming request data
 // Note that this middleware will automatically call next() behind the scenes to go to subsequent middleware below
 // Hence, we put it at the very top because we want to be able to parse all incoming request data from the below middleware
@@ -28,8 +30,9 @@ app.use(express.static(path.join(__dirname, "public")));
 // Temporary middleware to retrieve the user and store it into req.user and move to the next middleware
 // Note that we can store current user in an authentication middleware in the future
 app.use(async (req, res, next) => {
-  // let user = await User.findByPk(1);
-  // req.user = user; // We can now access the current user in our controllers by accessing req.user (See admin and shop controller)
+  let user = await User.findById("64a27bd724a659274d3a4c01");
+  // We can now access the current user in our controllers by accessing req.user (See admin and shop controller)
+  req.user = new User(user.name, user.email, user.cart, user._id); // We create a new user obj here to access all the class methods
   next();
 });
 

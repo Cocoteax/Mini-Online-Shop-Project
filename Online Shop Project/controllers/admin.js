@@ -23,7 +23,16 @@ const postAddProduct = async (req, res, next) => {
   const imageURL = req.body.imageURL;
   const price = req.body.price;
   const description = req.body.description;
-  const product = new Product(title, price, description, imageURL);
+  console.log(req.user._id);
+  console.log(typeof req.user._id);
+  const product = new Product(
+    title,
+    price,
+    description,
+    imageURL,
+    null,
+    req.user._id
+  );
   try {
     await product.save();
     res.redirect("/admin/products");
@@ -94,38 +103,18 @@ const postEditProduct = async (req, res, next) => {
   } catch (e) {
     console.log(e);
   }
-
-  // // Alternative way to update a record using .update()
-  // try {
-  //   await Product.update(
-  //     {
-  //       title: updatedTitle,
-  //       price: updatedPrice,
-  //       imageURL: updatedImageURL,
-  //       description: updatedDescription,
-  //     },
-  //     { where: { id: productID } }
-  //   );
-  //   res.redirect("/admin/products");
-  // } catch (e) {
-  //   console.log(e);
-  // }
 };
 
-// // /admin/delete-product => POST
-// const postDeleteProduct = async (req, res, next) => {
-//   const productID = req.body.productID;
-//   try {
-//     // First, we find the product to be deleted
-//     const product = await Product.findByPk(productID);
-//     // Then, we delete the product using .destroy() => Note that .destroy() returns a promise
-//     // We can also pass a config object into .destroy() if needed (Refer to docs)
-//     await product.destroy();
-//     res.redirect("/admin/products");
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
+// /admin/delete-product => POST
+const postDeleteProduct = async (req, res, next) => {
+  const productID = req.body.productID;
+  try {
+    await Product.deleteById(productID);
+    res.redirect("/admin/products");
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 module.exports = {
   getAddProductPage,
@@ -133,5 +122,5 @@ module.exports = {
   getAdminProducts,
   getEditProduct,
   postEditProduct,
-  // postDeleteProduct,
+  postDeleteProduct,
 };
