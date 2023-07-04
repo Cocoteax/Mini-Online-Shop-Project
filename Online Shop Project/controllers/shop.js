@@ -82,57 +82,37 @@ const postCart = async (req, res, next) => {
 const deleteCartItem = async (req, res, next) => {
   const productID = req.body.productID;
   try {
-    const cart = await req.user.getCart();
-    const cartProduct = await cart.getProducts({ where: { id: productID } });
-    const product = cartProduct[0];
-    // Remove the product record ONLY from the cart-item intermediate model and not from the actual products table
-    // .cartItem is a special way of accessing the product record in the intermediate table that sequelize allows us to do
-    await product.cartItem.destroy();
+    await req.user.deleteItemFromCart(productID);
     res.redirect("/cart");
   } catch (e) {
     console.log(e);
   }
 };
 
-// // /orders => GET
-// const getOrders = async (req, res, next) => {
-//   try {
-//     const orders = await req.user.getOrders({include: ['products']}); // Get the products from Product model related to the order by passing in include
-//     res.render("shop/orders", {
-//       path: "/orders",
-//       pageTitle: "Your Orders",
-//       orders: orders,
-//     });
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
+// /orders => GET
+const getOrders = async (req, res, next) => {
+  try {
+    const orders = await req.user.getOrders();
+    console.log(orders);
+    res.render("shop/orders", {
+      path: "/orders",
+      pageTitle: "Your Orders",
+      orders: orders,
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
-// // /create-order => POST
-// const postOrders = async (req, res, next) => {
-//   try {
-//     const cart = await req.user.getCart();
-//     const cartProducts = await cart.getProducts();
-//     // Create an order using the current cartProducts associated to the user
-//     const newOrder = await req.user.createOrder();
-
-//     // Add the products from the cartProducts array into the intermediate orderItem model
-//     // Note how we have to use .map() to iterate through the cartProducts array, add the individual qty attribute into each product, and store them as records in the intermediate orderitem table
-//     // This is how we add multiple records at once even if they have different attribute values
-//     await newOrder.addProducts(
-//       cartProducts.map((product) => {
-//         product.orderItem = { quantity: product.cartItem.quantity }; // Access each record in the intermediate table using the table name (orderItem) and assign the relevant qty attribute to the record
-//         return product;
-//       })
-//     );
-
-//     // Empty the cart after order has been created
-//     await cart.setProducts(null);
-//     res.redirect("/orders");
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
+// /create-order => POST
+const postOrders = async (req, res, next) => {
+  try {
+    await req.user.addOrder();
+    res.redirect("/orders");
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 // // // /checkout => GET
 // // const getCheckout = (req, res, next) => {
@@ -150,6 +130,6 @@ module.exports = {
   getCart,
   postCart,
   deleteCartItem,
-  // getOrders,
-  // postOrders,
+  getOrders,
+  postOrders,
 };

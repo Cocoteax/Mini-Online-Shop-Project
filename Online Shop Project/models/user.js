@@ -46,10 +46,9 @@ class User {
         items: updatedCartItems,
       };
       // First argument to filter the user, second argument to update only the cart
-      const result = await db
+      await db
         .collection("users")
         .updateOne({ _id: this._id }, { $set: { cart: updatedCart } });
-      console.log(result);
       return result;
     } catch (e) {
       console.log(e);
@@ -64,8 +63,8 @@ class User {
       // Get all cartItems by accessing the productIDs inside the user's cart and using the IDs to query product collection
       const products = await db
         .collection("products")
-        .find({ _id: { $in: productIDs } })
-        .toArray(); // Special mongodb syntax to find and return all _id which is $in productIDs ar
+        .find({ _id: { $in: productIDs } }) // Special mongodb syntax to find and return all _id which is $in productIDs ar
+        .toArray();
       // Add back the quantity value into the corresponding product object
       const cartItems = products.map((product) => {
         return {
@@ -87,12 +86,56 @@ class User {
   async deleteItemFromCart(productID) {
     try {
       const db = getDb();
-      const updatedCart = this.cart.items.filter(
+      // use .filter() to remove the product with the specific productID from cart.items
+      const updatedCartProducts = this.cart.items.filter(
         (product) => product.productID.toString() !== productID.toString()
       );
+      const updatedCart = {
+        items: updatedCartProducts,
+      };
       await db
         .collection("users")
         .updateOne({ _id: this._id }, { $set: { cart: updatedCart } });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  // Function to add an order
+  async addOrder() {
+    try {
+      const db = getDb();
+      const cartItems = await this.getCartItems(); // Call .getCartItems() to get all the product information to include in orders
+      console.log(cartItems);
+      const order = {
+        items: cartItems,
+        user: {
+          _id: this._id,
+          name: this.name,
+        },
+      };
+      // Add all cart items to a new order document
+      const result = await db.collection("orders").insertOne(order);
+      // Empty cart after creating order
+      this.cart = { items: [] };
+      await db
+        .collection("users")
+        .updateOne({ _id: this._id }, { $set: { cart: this.cart } });
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  // Function to get orders
+  async getOrders() {
+    try {
+      const db = getDb();
+      // Get all orders for that specific userID
+      const orders = await db
+        .collection("orders")
+        .find({ "user._id": this._id }) // Since _id is a nested field (within user) in the orders collection, we access it by using quotation marks
+        .toArray();
+      return orders;
     } catch (e) {
       console.log(e);
     }
