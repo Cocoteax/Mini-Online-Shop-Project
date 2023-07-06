@@ -4,13 +4,13 @@
 
 // Get the classes from the model
 const Product = require("../models/product");
-// const Order = require("../models/order");
 
 // / => GET
 const getIndex = async (req, res, next) => {
+  // ========== mongoose method ========== //
   try {
-    // Using defined .fetchAll() method from Product model
-    const products = await Product.fetchAll();
+    // .find() in mongoose returns all the documents in an array automatically without a cursor
+    const products = await Product.find();
     res.render("shop/index", {
       prods: products,
       pageTitle: "Shop",
@@ -19,12 +19,25 @@ const getIndex = async (req, res, next) => {
   } catch (e) {
     console.log(e);
   }
+  //   // ========== mongodb driver method ========== //
+  //   try {
+  //     // Using defined .fetchAll() method from Product model
+  //     const products = await Product.fetchAll();
+  //     res.render("shop/index", {
+  //       prods: products,
+  //       pageTitle: "Shop",
+  //       path: "/",
+  //     });
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
 };
 
 // /products => GET
 const getProducts = async (req, res, next) => {
+  // ========== mongoose method ========== //
   try {
-    const products = await Product.fetchAll();
+    const products = await Product.find();
     res.render("shop/product-list", {
       prods: products,
       pageTitle: "All Products",
@@ -33,14 +46,29 @@ const getProducts = async (req, res, next) => {
   } catch (e) {
     console.log(e);
   }
+
+  //   // ========== mongodb driver method ========== //
+  //   try {
+  //     const products = await Product.fetchAll();
+  //     res.render("shop/product-list", {
+  //       prods: products,
+  //       pageTitle: "All Products",
+  //       path: "/products",
+  //     });
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
 };
 
 // /products/:productID => GET
 const getProductDetail = async (req, res, next) => {
+  // ========== mongoose method ========== //
   // use req.params.{dynamicVariable} to access the dynamic variable that we inserted into the URL
   // Note that the name of the dynamicVariable is the name we use to define the dynamic variable when we create the route (See shop.js routes)
   const productID = req.params.productID;
   try {
+    // .findById() is used by mongoose to return a document with the speciifc id
+    // Note that id can be a string since it'll be automatically converted to an objectID by mongoose
     const product = await Product.findById(productID);
     res.render("shop/product-detail", {
       product: product,
@@ -50,6 +78,19 @@ const getProductDetail = async (req, res, next) => {
   } catch (e) {
     console.log(e);
   }
+
+  //   // ========== mongodb driver method ========== //
+  //   const productID = req.params.productID;
+  //   try {
+  //     const product = await Product.findById(productID);
+  //     res.render("shop/product-detail", {
+  //       product: product,
+  //       pageTitle: product.title,
+  //       path: "/products",
+  //     });
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
 };
 
 // /cart => GET
@@ -93,7 +134,6 @@ const deleteCartItem = async (req, res, next) => {
 const getOrders = async (req, res, next) => {
   try {
     const orders = await req.user.getOrders();
-    console.log(orders);
     res.render("shop/orders", {
       path: "/orders",
       pageTitle: "Your Orders",

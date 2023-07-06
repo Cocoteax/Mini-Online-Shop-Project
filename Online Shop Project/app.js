@@ -2,7 +2,6 @@ const path = require("path");
 
 const express = require("express");
 const bodyParser = require("body-parser");
-
 const app = express();
 
 app.set("view engine", "ejs");
@@ -12,8 +11,9 @@ const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const errorController = require("./controllers/error");
 const mongoConnect = require("./util/database").mongoConnect;
+const mongoose = require("mongoose");
 
-const User = require("./models/user");
+// const User = require("./models/user");
 
 // Registers an app-level middleware that parses incoming request data
 // Note that this middleware will automatically call next() behind the scenes to go to subsequent middleware below
@@ -27,14 +27,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // See views and note how we can link the css file to them because of this middleware
 app.use(express.static(path.join(__dirname, "public")));
 
-// Temporary middleware to retrieve the user and store it into req.user and move to the next middleware
-// Note that we can store current user in an authentication middleware in the future
-app.use(async (req, res, next) => {
-  let user = await User.findById("64a27bd724a659274d3a4c01");
-  // We can now access the current user in our controllers by accessing req.user (See admin and shop controller)
-  req.user = new User(user.name, user.email, user.cart, user._id); // We create a new user obj here to access all the class methods
-  next();
-});
+// // Temporary middleware to retrieve the user and store it into req.user and move to the next middleware
+// // Note that we can store current user in an authentication middleware in the future
+// app.use(async (req, res, next) => {
+//   let user = await User.findById("64a27bd724a659274d3a4c01");
+//   // We can now access the current user in our controllers by accessing req.user (See admin and shop controller)
+//   req.user = new User(user.name, user.email, user.cart, user._id); // We create a new user obj here to access all the class methods
+//   next();
+// });
 
 // // ========== Setting up app-level middlewares which execute the route-level middlewares based on the route specified ==========
 // // The general execution pattern is:    App-level middleware > router-level middleware > controller code (Which executes model code and sends data to views)
@@ -43,5 +43,23 @@ app.use("/admin", adminRoutes.router);
 app.use("/", shopRoutes.router); // If the router.get("/") has no exact match, then it will execute the below 404 middleware
 app.use("/", errorController.get404);
 
-mongoConnect();
-app.listen(3000);
+// // ========== mongodb driver connection ========== //
+// const startApp = async () => {
+//   await mongoConnect();
+//   app.listen(3000);
+// };
+// startApp();
+
+// ========== mongoose connection ========== //
+const startApp = async () => {
+  try {
+    await mongoose.connect(
+      "mongodb+srv://admin:admin123@cluster0.dnoygrc.mongodb.net/shop?retryWrites=true&w=majority"
+    );
+    console.log("Connected to mongodb!");
+    app.listen(3000);
+  } catch (e) {
+    console.log(e);
+  }
+};
+startApp();

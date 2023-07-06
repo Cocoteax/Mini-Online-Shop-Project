@@ -1,3 +1,5 @@
+// mongodb driver connection (We use mongoose from now on)
+
 const mongodb = require("mongodb");
 const MongoClient = mongodb.MongoClient; // Required to connect to mongodb
 
@@ -8,7 +10,7 @@ const mongoConnect = async () => {
   try {
     // .connect() gives us connection to mongoDB
     let client = await MongoClient.connect(
-      "mongodb+srv://admin:admin123@cluster0.dnoygrc.mongodb.net/?retryWrites=true&w=majority"
+      "mongodb+srv://admin:admin123@cluster0.dnoygrc.mongodb.net/shop?retryWrites=true&w=majority"
     );
     // .db() gives us access to the database specified in the parameter and stores it into db variable
     db = client.db("shop");

@@ -18,34 +18,55 @@ const getAddProductPage = (req, res, next) => {
 
 // /admin/add-product => POST
 const postAddProduct = async (req, res, next) => {
+  // ========== mongoose method ========== //
   // req.body gives us access to the POST request data (See bodyParser in app.js)
   const title = req.body.title;
   const imageURL = req.body.imageURL;
   const price = req.body.price;
   const description = req.body.description;
-  console.log(req.user._id);
-  console.log(typeof req.user._id);
-  const product = new Product(
-    title,
-    price,
-    description,
-    imageURL,
-    null,
-    req.user._id
-  );
+  // To create a product document with mongoose, we pass in an object that maps the data to the fields of the schema
+  const product = new Product({
+    title: title,
+    price: price,
+    description: description,
+    imageURL: imageURL,
+  });
   try {
-    await product.save();
+    await product.save(); // .save() is a method provided by mongoose to save a document
     res.redirect("/admin/products");
   } catch (e) {
     console.log(e);
   }
+
+  //   // ========== mongodb driver method ========== //
+  //   // req.body gives us access to the POST request data (See bodyParser in app.js)
+  //   const title = req.body.title;
+  //   const imageURL = req.body.imageURL;
+  //   const price = req.body.price;
+  //   const description = req.body.description;
+  //   console.log(req.user._id);
+  //   console.log(typeof req.user._id);
+  //   const product = new Product(
+  //     title,
+  //     price,
+  //     description,
+  //     imageURL,
+  //     null,
+  //     req.user._id
+  //   );
+  //   try {
+  //     await product.save();
+  //     res.redirect("/admin/products");
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
 };
 
 // /admin/products => GET
 const getAdminProducts = async (req, res, next) => {
+  // ========== mongoose method ========== //
   try {
-    const products = await Product.fetchAll();
-    // const products = await req.user.getProducts(); // Alternative way to get products associated with current user by using the special mixin
+    const products = await Product.find();
     res.render("admin/products", {
       prods: products,
       pageTitle: "Admin Products",
@@ -54,6 +75,18 @@ const getAdminProducts = async (req, res, next) => {
   } catch (e) {
     console.log(e);
   }
+
+  //   // ========== mongodb driver method ========== //
+  //   try {
+  //     const products = await Product.fetchAll();
+  //     res.render("admin/products", {
+  //       prods: products,
+  //       pageTitle: "Admin Products",
+  //       path: "/admin/products",
+  //     });
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
 };
 
 // /admin/edit-product/{productID}?edit=value => GET (Using query params and dynamic routing)
@@ -81,6 +114,7 @@ const getEditProduct = async (req, res, next) => {
 
 // /admin/edit-product => POST
 const postEditProduct = async (req, res, next) => {
+  // ========== mongoose method ========== //
   // When user submits form for editing a product via edit-product.ejs, we can retrieve the updated input values using req.body
   const productID = req.body.productID;
   const updatedTitle = req.body.title;
@@ -88,32 +122,63 @@ const postEditProduct = async (req, res, next) => {
   const updatedPrice = req.body.price;
   const updatedDescription = req.body.description;
   try {
-    // Create a new product object and call .save(), which will automatically update the existing product since it has an existing id
-    const product = new Product(
-      updatedTitle,
-      updatedPrice,
-      updatedDescription,
-      updatedImageURL,
-      productID
-    );
-    await product.save();
-    // Then, we store the product back into the database using .save() => Note that .save() return a promise
-    // If product record does not exist yet, .save() will create a new record. Else, it will update the existing product record
+    // Retrieve the product and update its fields
+    const product = await Product.findById(productID);
+    product.title = updatedTitle;
+    product.price = updatedPrice;
+    product.description = updatedDescription;
+    product.imageURL = updatedImageURL;
+    await product.save(); // .save() to update the product using mongoose
     res.redirect("/admin/products");
   } catch (e) {
     console.log(e);
   }
+
+  //     // ========== mongodb driver method ========== //
+  //   // When user submits form for editing a product via edit-product.ejs, we can retrieve the updated input values using req.body
+  //   const productID = req.body.productID;
+  //   const updatedTitle = req.body.title;
+  //   const updatedImageURL = req.body.imageURL;
+  //   const updatedPrice = req.body.price;
+  //   const updatedDescription = req.body.description;
+  //   try {
+  //     // Create a new product object and call .save(), which will automatically update the existing product since it has an existing id
+  //     const product = new Product(
+  //       updatedTitle,
+  //       updatedPrice,
+  //       updatedDescription,
+  //       updatedImageURL,
+  //       productID
+  //     );
+  //     await product.save();
+  //     // Then, we store the product back into the database using .save() => Note that .save() return a promise
+  //     // If product record does not exist yet, .save() will create a new record. Else, it will update the existing product record
+  //     res.redirect("/admin/products");
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
 };
 
 // /admin/delete-product => POST
 const postDeleteProduct = async (req, res, next) => {
+  // ========== mongoose method ========== //
   const productID = req.body.productID;
   try {
-    await Product.deleteById(productID);
+    // .findByIdAndDelete() is a mongoose method that deletes the document with the specific id
+    await Product.findByIdAndDelete(productID);
     res.redirect("/admin/products");
   } catch (e) {
     console.log(e);
   }
+
+  //     // ========== mongodb driver method ========== //
+  // const productID = req.body.productID;
+  // try {
+  //   await Product.deleteById(productID);
+  //   res.redirect("/admin/products");
+  // } catch (e) {
+  //   console.log(e);
+  // }
 };
 
 module.exports = {
