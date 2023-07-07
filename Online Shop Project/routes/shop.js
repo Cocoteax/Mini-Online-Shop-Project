@@ -21,20 +21,20 @@ router.get("/products", shopController.getProducts);
 // Note that the order matters, so if we have a /products/delete route below this route, then it will never reach /products/delete
 router.get("/products/:productID", shopController.getProductDetail);
 
-// // /cart => GET
-// router.get("/cart", shopController.getCart);
+// /cart => GET
+router.get("/cart", shopController.getCart);
 
-// // /cart => POST
-// router.post("/cart", shopController.postCart);
+// /cart => POST
+router.post("/cart", shopController.postCart);
 
-// // /cart-delete-item => POST
-// router.post("/cart-delete-item", shopController.deleteCartItem);
+// /cart-delete-item => POST
+router.post("/cart-delete-item", shopController.deleteCartItem);
 
-// // /orders => GET
-// router.get("/orders", shopController.getOrders);
+// /orders => GET
+router.get("/orders", shopController.getOrders);
 
-// // /create-order => POST
-// router.post("/create-order", shopController.postOrders);
+// /create-order => POST
+router.post("/create-order", shopController.postOrders);
 
 // // /checkout => GET
 // // router.get("/checkout", shopController.getCheckout);

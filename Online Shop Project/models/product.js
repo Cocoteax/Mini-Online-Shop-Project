@@ -6,31 +6,35 @@ const Schema = mongoose.Schema;
 // ========== mongoose method ========== //
 // Schema defines how a document within a collection should be structured in mongoose
 // Define each attribute of the document using a key-value pair
-const productSchema = new Schema(
-  {
-    title: {
-      type: String,
-      required: true, // Enforce that every product document must have a title
-    },
-    price: {
-      type: Number,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    imageURL: {
-      type: String,
-      required: true,
-    },
+const productSchema = new Schema({
+  title: {
+    type: String,
+    required: true, // Enforce that every product document must have a title
   },
-  { collection: "Product" } // Pass this object as a second arg to define the collection name
-);
+  price: {
+    type: Number,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  imageURL: {
+    type: String,
+    required: true,
+  },
+  // To reference the user collection, we need to use ref keyword
+  userID: {
+    type: Schema.Types.ObjectId,
+    ref: "User", // ref is a keyword used to refernece another mongoose model (Value must the schema name defined in mongoose.model())
+    required: true,
+  },
+});
 
 // mongoose.model() associates productSchema to a collection called "products" when we save a document into the collection
 // Note that the name of the collection will be lower case by default unless we specify it in the Schema definition
-module.exports = mongoose.model("Product", productSchema);
+// Third argument defines the collection name
+module.exports = mongoose.model("Product", productSchema, "products");
 
 // // ========== mongodb driver method ========== //
 

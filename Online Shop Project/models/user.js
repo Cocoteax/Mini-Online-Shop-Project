@@ -1,6 +1,90 @@
 const getDb = require("../util/database").getDb;
 const mongodb = require("mongodb");
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+// ========== mongoose method ========== //
+const userSchema = new Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  // embed a cart document into user
+  cart: {
+    // This is how to define an array type
+    items: [
+      {
+        productID: {
+          type: Schema.Types.ObjectId,
+          required: true,
+          ref: "Product", // Reference the product collection
+        },
+        quantity: { type: Number, required: true },
+      },
+    ],
+  },
+});
+
+// Define custom methods for the schema with .methods
+// NOTE: Use function keyword when defining custom schema methods since "this" keyword will be binded to the schema, unlike in arrow functions
+// Method to add items to cart
+userSchema.methods.addToCart = async function (product) {
+  try {
+    const updatedCartItems = [...this.cart.items];
+
+    // Check if there is an existing product in the cart by comparing productID
+    const existingProductIndex = this.cart.items.findIndex((cartProduct) => {
+      return cartProduct.productID.toString() === product._id.toString();
+    });
+
+    // findIndex returns the index of the cartProduct if exist, else return -1
+    if (existingProductIndex >= 0) {
+      this.cart.items[existingProductIndex].quantity += 1; // Update quantity only
+    } else {
+      // Push a new product item into the cart
+      updatedCartItems.push({
+        productID: product._id,
+        quantity: 1,
+      });
+    }
+
+    const updatedCart = {
+      items: updatedCartItems,
+    };
+    // Save the updated cart into the user object and save
+    this.cart = updatedCart;
+    const result = await this.save();
+    return result;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// Method to delete item from cart
+userSchema.methods.deleteItemFromCart = async function (productID) {
+  try {
+    // use .filter() to remove the product with the specific productID from cart.items
+    const updatedCartProducts = this.cart.items.filter(
+      (product) => product.productID.toString() !== productID.toString()
+    );
+    const updatedCart = {
+      items: updatedCartProducts,
+    };
+    this.cart = updatedCart;
+    const result = await this.save();
+    return result;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+// Method to clear cart after placing an order
+userSchema.methods.clearCart = async function () {
+  this.cart = { items: [] };
+  return this.save();
+};
+
+// Connect the User schema to the User model
+// Third argument defines the collection name
+module.exports = mongoose.model("User", userSchema, "users");
 
 // // ========== mongodb driver method ========== //
 // class User {

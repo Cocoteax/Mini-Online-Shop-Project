@@ -4,6 +4,7 @@
 
 // Get the classes from the model
 const Product = require("../models/product");
+const Order = require("../models/order");
 
 // / => GET
 const getIndex = async (req, res, next) => {
@@ -95,8 +96,12 @@ const getProductDetail = async (req, res, next) => {
 
 // /cart => GET
 const getCart = async (req, res, next) => {
+  // ========== mongoose method ========== //
   try {
-    const cartProducts = await req.user.getCartItems();
+    // Use .populate() to get the fields of the other model
+    // NOTE: Pass in the path of the foregin key (productID) within the user model
+    const user = await req.user.populate("cart.items.productID");
+    const cartProducts = user.cart.items;
     res.render("shop/cart", {
       path: "/cart",
       pageTitle: "Your Cart",
@@ -105,6 +110,18 @@ const getCart = async (req, res, next) => {
   } catch (e) {
     console.log(e);
   }
+
+  //     // ========== mongodb driver method ========== //
+  //   try {
+  //     const cartProducts = await req.user.getCartItems();
+  //     res.render("shop/cart", {
+  //       path: "/cart",
+  //       pageTitle: "Your Cart",
+  //       products: cartProducts,
+  //     });
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
 };
 
 // /cart => POST
@@ -132,8 +149,9 @@ const deleteCartItem = async (req, res, next) => {
 
 // /orders => GET
 const getOrders = async (req, res, next) => {
+  // ========== mongoose method ========== //
   try {
-    const orders = await req.user.getOrders();
+    const orders = await Order.find({ "user.userID": req.user._id });
     res.render("shop/orders", {
       path: "/orders",
       pageTitle: "Your Orders",
@@ -142,16 +160,54 @@ const getOrders = async (req, res, next) => {
   } catch (e) {
     console.log(e);
   }
+
+  //     // ========== mongodb driver method ========== //
+  //   try {
+  //     const orders = await req.user.getOrders();
+  //     res.render("shop/orders", {
+  //       path: "/orders",
+  //       pageTitle: "Your Orders",
+  //       orders: orders,
+  //     });
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
 };
 
 // /create-order => POST
 const postOrders = async (req, res, next) => {
+  // ========== mongoose method ========== //
   try {
-    await req.user.addOrder();
+    // Get the products in the cart
+    const user = await req.user.populate("cart.items.productID");
+    // Transform the cart products to the data structure that we defined in order schema
+    const cartProducts = user.cart.items.map((item) => {
+      return {
+        product: { ...item.productID }, // Spread operator to store the entire product object instead of just the productID
+        quantity: item.quantity,
+      };
+    });
+    // Create a new order and save
+    const order = new Order({
+      user: {
+        name: req.user.name,
+        userID: req.user._id,
+      },
+      products: cartProducts,
+    });
+    await order.save();
+    await req.user.clearCart();
     res.redirect("/orders");
   } catch (e) {
     console.log(e);
   }
+  //   // ========== mongodb driver method ========== //
+  //   try {
+  //     await req.user.addOrder();
+  //     res.redirect("/orders");
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
 };
 
 // // // /checkout => GET

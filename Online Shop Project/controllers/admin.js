@@ -24,12 +24,14 @@ const postAddProduct = async (req, res, next) => {
   const imageURL = req.body.imageURL;
   const price = req.body.price;
   const description = req.body.description;
+  const userID = req.user._id;
   // To create a product document with mongoose, we pass in an object that maps the data to the fields of the schema
   const product = new Product({
     title: title,
     price: price,
     description: description,
     imageURL: imageURL,
+    userID: userID,
   });
   try {
     await product.save(); // .save() is a method provided by mongoose to save a document
@@ -66,7 +68,12 @@ const postAddProduct = async (req, res, next) => {
 const getAdminProducts = async (req, res, next) => {
   // ========== mongoose method ========== //
   try {
-    const products = await Product.find();
+    const products = await Product.find(); // To filter out fields returned, we can use .select()
+
+    // // Use .populate() to get the fields of the other model (User) and pass in the path of the foregin key (userID) within the product model
+    // // NOTE: Second arg is used to specify what fields u want included
+    // const products = await Product.find().populate("userID", "name");
+
     res.render("admin/products", {
       prods: products,
       pageTitle: "Admin Products",
