@@ -5,8 +5,8 @@ const Schema = mongoose.Schema;
 
 // ========== mongoose method ========== //
 const userSchema = new Schema({
-  name: { type: String, required: true },
   email: { type: String, required: true },
+  password: { type: String, required: true },
   // embed a cart document into user
   cart: {
     // This is how to define an array type

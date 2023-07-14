@@ -51,17 +51,17 @@ app.use(express.static(path.join(__dirname, "public")));
 // Middleware to retrieve the actual mongoose user object with all its defined schema methods
 // NOTE: If we access req.session.user, it will only contain the raw user data and not the methods of the user object
 app.use(async (req, res, next) => {
-    try {
-      if (!req.session.user) {
-        return next();
-      }
-      // If there's an existing session user, then we store the user object with all its methods into req.user
-      let user = await User.findById(req.session.user._id);
-      req.user = user;
-      next();
-    } catch (e) {
-      console.log(e);
+  try {
+    if (!req.session.user) {
+      return next();
     }
+    // If there's an existing session user, then we store the user object with all its methods into req.user
+    let user = await User.findById(req.session.user._id);
+    req.user = user;
+    next();
+  } catch (e) {
+    console.log(e);
+  }
 });
 
 // // ========== Setting up app-level middlewares which execute the route-level middlewares based on the route specified ==========
@@ -84,17 +84,6 @@ const startApp = async () => {
   try {
     await mongoose.connect(MONGODB_URI);
     console.log("Connected to mongodb!");
-    const existingUser = await User.findOne();
-    if (!existingUser) {
-      const user = new User({
-        name: "admin",
-        email: "admin@test.com",
-        cart: {
-          items: [],
-        },
-      });
-      await user.save();
-    }
     app.listen(3000);
   } catch (e) {
     console.log(e);
