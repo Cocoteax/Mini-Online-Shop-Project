@@ -195,7 +195,7 @@ const postOrders = async (req, res, next) => {
     // Create a new order and save
     const order = new Order({
       user: {
-        name: req.user.name,
+        email: req.user.email,
         userID: req.user._id,
       },
       products: cartProducts,
