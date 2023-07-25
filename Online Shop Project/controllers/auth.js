@@ -77,7 +77,6 @@ const postSignup = async (req, res, next) => {
       return res.redirect("/signup");
     }
 
-    console.log("test");
     // Encrypt password before storing
     // NOTE: first arg is entered PW, second arg is number of rounds to hash PW (12 is secure)
     const hashedPassword = await bcrypt.hash(password, 12);

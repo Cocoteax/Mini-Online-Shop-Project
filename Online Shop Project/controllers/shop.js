@@ -101,9 +101,10 @@ const getProductDetail = async (req, res, next) => {
 const getCart = async (req, res, next) => {
   // ========== mongoose method ========== //
   try {
-    // Use .populate() to get the fields of the other model
+    // Use .populate() to get the fields of the other model (product)
     // NOTE: Pass in the path of the foregin key (productID) within the user model
     const user = await req.user.populate("cart.items.productID");
+    
     const cartProducts = user.cart.items;
     res.render("shop/cart", {
       path: "/cart",

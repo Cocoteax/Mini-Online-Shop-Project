@@ -69,11 +69,14 @@ const postAddProduct = async (req, res, next) => {
 const getAdminProducts = async (req, res, next) => {
   // ========== mongoose method ========== //
   try {
-    const products = await Product.find(); // To filter out fields returned, we can use .select()
+    // const products = await Product.find(); // To filter out fields returned, we can use .select()
 
     // // Use .populate() to get the fields of the other model (User) and pass in the path of the foregin key (userID) within the product model
-    // // NOTE: Second arg is used to specify what fields u want included
-    // const products = await Product.find().populate("userID", "name");
+    // // NOTE: To specify what fields we want included, pass in a config object
+    const products = await Product.find().populate({
+      path: "userID",
+      select: "email",
+    });
 
     res.render("admin/products", {
       prods: products,
